@@ -1,25 +1,25 @@
 package lab1;
 
 public class BallThread extends Thread {
-  private Ball b;
+  private Pool pool;
+  private BallController ball;
 
-  public BallThread(Ball ball){
-    b = ball;
+  BallThread(Pool pool, BallController ball) {
+    this.pool = pool;
+    this.ball = ball;
   }
 
   @Override
-  public void run(){
-    try{
-      for(int i=1; i<10000; i++){
-        b.move();
-        System.out.println("Thread name = "
-          + Thread.currentThread().getName());
+  public void run() {
+    try {
+      System.out.println("Ball thread started: " + Thread.currentThread().getName());
+      for(int i = 1; i < 10000; i++) {
+        this.ball.move();
+        this.pool.repaint();
         Thread.sleep(5);
-
       }
-    } catch(InterruptedException ex){
-
+    } catch(Exception exception){
+      System.out.println("Thread was interrupted for some reason.");
     }
-
   }
 }

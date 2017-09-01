@@ -3,59 +3,70 @@ package lab1;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.IOException;
 import javax.swing.*;
 
-public class BounceFrame extends JFrame {
+class BounceFrame extends JFrame {
+  private Pool pool;
 
-  private BallCanvas canvas;
-  public static final int WIDTH = 450;
-  public static final int HEIGHT = 350;
+  private JButton initAddBallButton(Pool pool) {
+    JButton btn = new JButton("Add ball");
+    btn.addActionListener(e -> {
+      BallController ball = new BallController(10, Color.red, 2);
+      pool.addBall(ball);
+      BallThread thread = new BallThread(pool, ball);
+      thread.start();
 
-  public BounceFrame() {
-    this.setSize(WIDTH, HEIGHT);
-    this.setTitle("Bounce programm");
+      ball.setBallGotIntoPocketListener(ballController -> {
+        System.out.println("In pocket");
+        pool.removeBall(ballController);
+        thread.interrupt();
+      });
+    });
+    return btn;
+  }
 
-    this.canvas = new BallCanvas();
-    System.out.println("In Frame Thread name = "
-      + Thread.currentThread().getName());
-    Container content = this.getContentPane();
-    content.add(this.canvas, BorderLayout.CENTER);
+  private JButton initStopButton() {
+    JButton btn = new JButton("Exit");
+    btn.addActionListener(e -> System.exit(0));
+    return btn;
+  }
+
+//  private ButtonGroup initColorGroup() {
+//
+//
+//    ButtonGroup group = new ButtonGroup();
+//    group.add(red);
+//    group.add(blue);
+//    return group;
+//  }
+
+  BounceFrame() {
+    this.setSize(
+        BallController.TABLE_WIDTH + 500,
+        BallController.TABLE_HEIGHT + 39
+    );
+    this.setTitle("Bounce program");
+
+    try {
+      pool = new Pool();
+    } catch (IOException e) {
+      System.out.println("BG image not found");
+      System.exit(1);
+    }
 
     JPanel buttonPanel = new JPanel();
     buttonPanel.setBackground(Color.lightGray);
+    buttonPanel.add(this.initAddBallButton(pool));
+    buttonPanel.add(this.initStopButton());
 
-    JButton buttonStart = new JButton("Start");
-    JButton buttonStop = new JButton("Stop");
+//    ButtonGroup group = initColorGroup();
 
-    buttonStart.addActionListener(new ActionListener() {
+    Container container = this.getContentPane();
+    container.add(pool, BorderLayout.CENTER);
+    container.add(buttonPanel, BorderLayout.EAST);
 
-      @Override
-      public void actionPerformed(ActionEvent e) {
-
-        Ball b = new Ball(canvas);
-        canvas.add(b);
-
-        BallThread thread = new BallThread(b);
-        thread.start();
-        System.out.println("Thread name = " + thread.getName());
-      }
-    });
-
-    buttonStop.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-
-        System.exit(0);
-      }
-
-    });
-
-
-    buttonPanel.add(buttonStart);
-    buttonPanel.add(buttonStop);
-
-    content.add(buttonPanel, BorderLayout.SOUTH);
+    this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    this.setVisible(true);
   }
 }
