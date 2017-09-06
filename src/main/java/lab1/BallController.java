@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
@@ -79,13 +78,13 @@ class BallController {
 
   private double distanceTo (Point2D hole) {
     return Math.sqrt(Math.pow(ball.x - hole.getX(), 2) +
-        Math.pow(ball.y - hole.getX(), 2));
+        Math.pow(ball.y - hole.getY(), 2));
   }
 
   private boolean isInsidePocket () {
     return (
-        distanceTo(HOLE_1) < HOLE_RADIUS - ball.radius
-            || distanceTo(HOLE_2) < HOLE_RADIUS - ball.radius
+        distanceTo(HOLE_1) <= HOLE_RADIUS - ball.radius
+            || distanceTo(HOLE_2) <= HOLE_RADIUS - ball.radius
     );
   }
 
