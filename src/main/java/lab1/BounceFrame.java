@@ -17,7 +17,7 @@ class BounceFrame extends JFrame {
   private JTextField inputSpeed = new JTextField("2");
   private JLabel ballCount = new JLabel("Balls: 0");
   private JLabel errorMsg = new JLabel("");
-  private JCheckBox checkBoxRandomized = new JCheckBox("Random", true);
+  private JCheckBox checkBoxRandomized = new JCheckBox("Rand", true);
 
   private Ball createBallFromInput() {
     Color ballColor = BasicColorsMapping.getColor(
@@ -125,7 +125,7 @@ class BounceFrame extends JFrame {
     container.add(pool, BorderLayout.CENTER);
     container.add(controlPane, BorderLayout.EAST);
 
-    this.setSize(Ball.TABLE_WIDTH + 146, Ball.TABLE_HEIGHT + 29);
+    this.setSize(Ball.TABLE_WIDTH + 150, Ball.TABLE_HEIGHT + 29);
     this.setResizable(false);
     this.setTitle("Pool");
     this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
