@@ -3,45 +3,44 @@ package lab1;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
-import sun.awt.Mutex;
+import lombok.Getter;
+import lombok.Setter;
+import org.pcollections.HashTreePSet;
+import org.pcollections.PSet;
 
 class Pool extends JPaneWithBackground {
-  private final Set<Ball> balls = new HashSet<>();
-  Set<Ball> getBalls () {
-    return balls;
-  }
+  @Getter
+  private PSet<Ball> balls = HashTreePSet.empty();
 
+  @Setter
   private Consumer<Ball> onBallGotIntoPocket = null;
-  void setOnBallGotIntoPocket (Consumer<Ball> onBallGotIntoPocket) {
-    this.onBallGotIntoPocket = onBallGotIntoPocket;
-  }
+
+  private ExecutorService executor = Executors.newCachedThreadPool();
 
   Pool() {
     super("./src/main/resources/billiard.png");
   }
 
   void addBall (Ball ball) {
-    synchronized (balls) {
-      balls.add(ball);
-    }
+    balls = balls.plus(ball);
     BallThread thread = new BallThread(ball);
-    if (ball.getBallData().color.equals(Color.red)) {
+
+    if (ball.getBallData().getColor().equals(Color.red)) {
       thread.setPriority(Thread.MAX_PRIORITY);
     } else {
       thread.setPriority(Thread.MIN_PRIORITY);
     }
-    thread.start();
+
+    Future<?> future = executor.submit(thread);
+
     ball.setOnBallGotIntoPocket(b -> {
       System.out.println("Ball \"" + Thread.currentThread().getName() +  "\" is in pocket");
-      thread.interrupt();
-      synchronized (balls) {
-        balls.remove(ball);
-      }
+      future.cancel(true);
+      balls = balls.minus(ball);
       if (onBallGotIntoPocket != null) {
         onBallGotIntoPocket.accept(ball);
       }
@@ -52,10 +51,8 @@ class Pool extends JPaneWithBackground {
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2d = (Graphics2D)g;
-    synchronized (balls) {
-      for (Ball ball : balls) {
-        ball.render(g2d);
-      }
+    for (Ball ball : balls) {
+      ball.render(g2d);
     }
     this.repaint();
   }

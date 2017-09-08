@@ -8,12 +8,13 @@ import java.awt.geom.Point2D;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 class Ball {
-  public static final int TABLE_WIDTH = 433;
-  public static final int TABLE_HEIGHT = 236;
+  static final int TABLE_WIDTH = 433;
+  static final int TABLE_HEIGHT = 236;
 
   private static final int HOLE_RADIUS = 19;
 
@@ -25,15 +26,11 @@ class Ball {
   private static final Point2D HOLE_1 = new Point(19, 19);
   private static final Point2D HOLE_2 = new Point(19, 236 - 19);
 
+  @Getter
   private BallData ballData = new BallData();
-  BallData getBallData () {
-    return ballData;
-  }
 
+  @Setter
   private Consumer<Ball> onBallGotIntoPocket = null;
-  void setOnBallGotIntoPocket (Consumer<Ball> onBallGotIntoPocket) {
-    this.onBallGotIntoPocket = onBallGotIntoPocket;
-  }
 
   Ball(int radius, int speed, Color color, boolean isRandomized) {
     ballData.radius = radius;
@@ -100,6 +97,7 @@ class Ball {
     );
   }
 
+  @Data
   static class BallData {
     private static final int DEFAULT_RADIUS = 15;
     private static final Color DEFAULT_COLOR = Color.darkGray;

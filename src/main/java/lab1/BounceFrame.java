@@ -10,6 +10,7 @@ import java.awt.Insets;
 import java.util.Optional;
 import java.util.Set;
 import javax.swing.*;
+import org.pcollections.PSet;
 
 class BounceFrame extends JFrame {
   private ButtonGroup colorGroup = new ButtonGroup();
@@ -43,10 +44,8 @@ class BounceFrame extends JFrame {
   }
 
   private void updateBallCount (Pool pool) {
-    Set<Ball> balls = pool.getBalls();
-    synchronized (balls) {
-      ballCount.setText("Balls: " + balls.size());
-    }
+    PSet<Ball> balls = pool.getBalls();
+    ballCount.setText("Balls: " + balls.size());
   }
 
   BounceFrame() {
