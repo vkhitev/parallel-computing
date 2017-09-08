@@ -11,13 +11,19 @@ class JPaneWithBackground extends JPanel {
 
   private Image backgroundImage;
 
-  public JPaneWithBackground(String fileName) throws IOException {
-    backgroundImage = ImageIO.read(new File(fileName));
+  JPaneWithBackground(String filename) {
+    try {
+      backgroundImage = ImageIO.read(new File(filename));
+    } catch (IOException e) {
+      System.err.println("Image \"" + filename + "\" not loaded");
+    }
   }
 
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    g.drawImage(backgroundImage, 0, 0, this);
+    if (backgroundImage != null) {
+      g.drawImage(backgroundImage, 0, 0, this);
+    }
   }
 }
