@@ -7,8 +7,11 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 import javax.swing.*;
 import org.pcollections.PSet;
 
@@ -18,7 +21,6 @@ class BounceFrame extends JFrame {
   private JTextField inputSpeed = new JTextField("2");
   private JLabel ballCount = new JLabel("Balls: 0");
   private JLabel errorMsg = new JLabel("");
-  private JCheckBox checkBoxRandomized = new JCheckBox("Rand", true);
 
   private Ball createBallFromInput() {
     Color ballColor = BasicColorsMapping.getColor(
@@ -38,9 +40,7 @@ class BounceFrame extends JFrame {
         .filter(speed -> speed > 0 && speed < 5)
         .orElse(2);
 
-    boolean isRandomized = checkBoxRandomized.isSelected();
-
-    return new Ball(ballSize, ballSpeed, ballColor, isRandomized);
+    return new Ball(ballSize, ballSpeed, ballColor, true, new Point2D.Double(0, 0));
   }
 
   private void updateBallCount (Pool pool) {
@@ -55,13 +55,27 @@ class BounceFrame extends JFrame {
     JButton btnAdd = new JButton("Add ball");
     btnAdd.addActionListener(e -> {
       try {
-        pool.addBall(createBallFromInput());
+        pool.addBall(createBallFromInput(), true);
         pool.setOnBallGotIntoPocket(ball -> updateBallCount(pool));
         updateBallCount(pool);
         errorMsg.setText("");
       } catch (RuntimeException err) {
         errorMsg.setText("Wrong input");
       }
+    });
+
+    JButton btnPriorityExperiment = new JButton("Exp");
+    btnPriorityExperiment.addActionListener(e -> {
+      IntStream.range(0, 200).forEach(i -> {
+        Color color;
+        if (i == 100) {
+          color = Color.RED;
+        } else {
+          color = Color.BLUE;
+        }
+        Ball ball = new Ball(10, 2, color, false, new Point2D.Double(10, 20));
+        pool.addBall(ball, false);
+      });
     });
 
     JButton btnClose = new JButton("Exit");
@@ -109,7 +123,7 @@ class BounceFrame extends JFrame {
     c.gridy = 5;
     controlPane.add(ballCount, c);
     c.gridx = 1;
-    controlPane.add(checkBoxRandomized, c);
+    controlPane.add(btnPriorityExperiment, c);
     c.gridx = 0;
     c.gridy = 6;
     errorMsg.setForeground(Color.red);
@@ -118,7 +132,7 @@ class BounceFrame extends JFrame {
     controlPane.setBackground(Color.lightGray);
     radioRed.setBackground(Color.lightGray);
     radioBlue.setBackground(Color.lightGray);
-    checkBoxRandomized.setBackground(Color.lightGray);
+    btnPriorityExperiment.setBackground(Color.lightGray);
 
     Container container = this.getContentPane();
     container.add(pool, BorderLayout.CENTER);

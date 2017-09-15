@@ -19,13 +19,11 @@ class Pool extends JPaneWithBackground {
   @Setter
   private Consumer<Ball> onBallGotIntoPocket = null;
 
-  private ExecutorService executor = Executors.newCachedThreadPool();
-
   Pool() {
     super("./src/main/resources/billiard.png");
   }
 
-  void addBall (Ball ball) {
+  void addBall (Ball ball, boolean isDestroyable) {
     balls = balls.plus(ball);
     BallThread thread = new BallThread(ball);
 
@@ -35,25 +33,24 @@ class Pool extends JPaneWithBackground {
       thread.setPriority(Thread.MIN_PRIORITY);
     }
 
-    Future<?> future = executor.submit(thread);
+    thread.start();
 
-    ball.setOnBallGotIntoPocket(b -> {
-      System.out.println("Ball \"" + Thread.currentThread().getName() +  "\" is in pocket");
-      future.cancel(true);
-      balls = balls.minus(ball);
-      if (onBallGotIntoPocket != null) {
-        onBallGotIntoPocket.accept(ball);
-      }
-    });
+    if (isDestroyable) {
+      ball.setOnBallGotIntoPocket(b -> {
+        thread.interrupt();
+        balls = balls.minus(ball);
+        if (onBallGotIntoPocket != null) {
+          onBallGotIntoPocket.accept(ball);
+        }
+      });
+    }
   }
 
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2d = (Graphics2D)g;
-    for (Ball ball : balls) {
-      ball.render(g2d);
-    }
+    balls.forEach(ball -> ball.render(g2d));
     this.repaint();
   }
 }

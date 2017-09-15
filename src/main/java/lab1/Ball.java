@@ -3,6 +3,7 @@ package lab1;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,7 +33,7 @@ class Ball {
   @Setter
   private Consumer<Ball> onBallGotIntoPocket = null;
 
-  Ball(int radius, int speed, Color color, boolean isRandomized) {
+  Ball(int radius, int speed, Color color, boolean isRandomized, Point2D startPosition) {
     ballData.radius = radius;
     ballData.color = color;
     if (isRandomized) {
@@ -45,9 +46,9 @@ class Ball {
       ballData.y = ThreadLocalRandom.current().nextInt(LINE_TOP_OFFSET, LINE_BOTTOM_OFFSET);
     } else {
       ballData.dx = speed;
-      ballData.dy = 0;
-      ballData.x = LINE_RIGHT_OFFSET - LINE_LEFT_OFFSET;
-      ballData.y = LINE_BOTTOM_OFFSET - LINE_TOP_OFFSET + radius;
+      ballData.dy = 2;
+      ballData.x = (int) startPosition.getX();
+      ballData.y = (int) startPosition.getY();
     }
   }
 
